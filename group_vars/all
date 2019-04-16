@@ -1,0 +1,11 @@
+ansible_user: ubuntu
+
+ansible_ssh_private_key_file: ~/awsmoonhome.pem
+
+ec2_access_key: "AKIA4SVGFPV4G7PZCSXI"
+
+ec2_secret_key: "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"
+
+group: "aws.moonhome.net"
+
+nginx_config_path: '{{ playbook_dir }}/roles/nginx/nginx.cfg'

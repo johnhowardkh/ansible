@@ -1,0 +1,79 @@
+---
+- hosts: localhost
+  connection: local
+  become: lalse
+  gather_facts: False
+  vars:
+          security_group: aws.moonhome.net
+          aws_access_key: "{{ec2_access_key}}"
+          aws_secret_key: "{{ec2_secret_key}}"
+  tasks:
+          - name: Launch t2.micro for WP on Docker
+            ec2:
+                    key_name: awsmoonhome
+                    aws_access_key: "{{ec2_access_key}}"
+                    aws_secret_key: "{{ec2_secret_key}}"
+                    group: "{{group}}"
+                    instance_type: t2.micro
+                    image: ami-090f10efc254eaf55
+                    region: eu-central-1
+                    volumes:
+                      - device_name: /dev/xvda
+                        volume_type: gp2
+                        volume_size: 8
+                    wait: no
+                    assign_public_ip: yes
+                    vpc_subnet_id: subnet-e6550e9b
+                    monitoring: no
+            register: ec2
+
+          - name: Launch t2.medium for Zabbix
+            ec2:
+                    key_name: awsmoonhome
+                    aws_access_key: "{{ec2_access_key}}"
+                    aws_secret_key: "{{ec2_secret_key}}"
+                    instance_type: t2.medium
+                    image: ami-090f10efc254eaf55
+                    region: eu-central-1
+                    volumes:
+                      - device_name: /dev/xvda
+                        volume_type: gp2
+                        volume_size: 8
+                    wait: no
+                    assign_public_ip: yes
+                    vpc_subnet_id: subnet-e6550e9b
+                    monitoring: no
+            register: ec2
+
+          - name: Launch t2.medium for ELK
+            ec2:
+                    key_name: awsmoonhome
+                    aws_access_key: "{{ec2_access_key}}"
+                    aws_secret_key: "{{ec2_secret_key}}"
+                    instance_type: t2.medium
+                    image: ami-090f10efc254eaf55
+                    region: eu-central-1
+                    volumes:
+                      - device_name: /dev/xvda
+                        volume_type: gp2
+                        volume_size: 8
+                    wait: no
+                    assign_public_ip: yes
+                    vpc_subnet_id: subnet-e6550e9b
+                    monitoring: no
+            register: ec2
+          
+          - name: Add public IPs to host group
+            add_host: hostname={{ item.public_ip }} groups=sandbox
+            loop: "{{ ec2.instances }}"
+
+- hosts: sandbox
+  name: test connections
+  user: ubuntu
+  become: true
+  gather_facts: true
+
+  tasks:
+          - name: Check something
+            service: name=ntpd state=started
+
