@@ -4,7 +4,6 @@
   become: lalse
   gather_facts: False
   vars:
-          security_group: aws.moonhome.net
           aws_access_key: "{{ec2_access_key}}"
           aws_secret_key: "{{ec2_secret_key}}"
   tasks:
@@ -22,7 +21,7 @@
                         volume_type: gp2
                         volume_size: 8
                     wait: yes
-                    wait_timeout: 180
+                    wait_timeout: 300
                     assign_public_ip: yes
                     vpc_subnet_id: subnet-e6550e9b
                     monitoring: no
@@ -42,7 +41,7 @@
                         volume_type: gp2
                         volume_size: 8
                     wait: yes
-                    wait_timeout: 240
+                    wait_timeout: 300
                     assign_public_ip: yes
                     vpc_subnet_id: subnet-e6550e9b
                     monitoring: no
@@ -62,7 +61,7 @@
                         volume_type: gp2
                         volume_size: 8
                     wait: yes
-                    wait_timeout: 240
+                    wait_timeout: 300
                     assign_public_ip: yes
                     vpc_subnet_id: subnet-e6550e9b
                     monitoring: no
@@ -79,6 +78,6 @@
   gather_facts: true
 
   tasks:
-          - name: Check something
+          - name: Check connection
             service: name=ntpd state=started
 

@@ -1,5 +1,0 @@
-nginx_backedn_servers:
-	- host: wordpress
-	  address: $?
-	  port_http: 8080
-	  port_https: 8443
