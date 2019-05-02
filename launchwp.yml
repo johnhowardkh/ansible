@@ -2,6 +2,7 @@
 - hosts: localhost
   connection: local
   become: true
+  remote_user: ubuntu
   gather_facts: False
   vars:
           aws_access_key: "{{ec2_access_key}}"
@@ -36,7 +37,7 @@
             
           - name: Wait for the SSH to come up
             debugger: on_failed
-            delegate_to: "{{ item.public_dns_name }}"
+            delegate_to: "{{ item.public_ip }}"
             wait_for_connection:
                 delay: 60
                 timeout: 320
@@ -45,6 +46,7 @@
 - hosts: sandbox
   gather_facts: true
   become: true
+  remote_user: ubuntu
   tasks:
      - name: Update
        apt: update_cache=yes
@@ -58,4 +60,50 @@
              repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
              state: present
              filename: docker
+     - name: Install packages for docker-compose
+       apt:
+               name: "{{ item }}"
+               update_cache: yes
+       with_items:
+         - "aptitude"
+         - "apt-transport-https"
+         - "ca-certificates"
+         - "curl"
+         - "software-properties-common"
+     - name: Update cache
+       apt: update_cache=yes      
+     - name: Install docker-ce
+       apt: pkg=docker-ce state=present
+     - name: Install docker-ce-cli
+       apt: pkg=docker-ce state=present
+     - name: Install docker-compose
+       apt: pkg=docker-compose state=present
+     - name: Install containerd
+       apt: pkg=containerd.io state=present
+     - name: Add project folder
+       file:
+               path: /home/ubuntu/lempcompose
+               state: directory
+               mode: 0755
+     - name: Change working directory
+       command: chdir=/home/ubuntu/lempcompose ls
+     - name: Install Python packages
+       apt:
+               state: present
+               update_cache: true
+               name:
+                       - python3-pip
+                       - python3-setuptools
+     - name: Install PIPs
+       pip:
+               name:
+                       - docker
+                       - docker-compose
+     - name: Clone the project from GitHub
+       git: repo=https://github.com/johnhowardkh/lempcompose-wordpress dest=/home/ubuntu/lempcompose
+     - name: Run the project
+       docker_service:
+               project_src: /home/ubuntu/lempcompose
+               state: present
+               register: output
 
