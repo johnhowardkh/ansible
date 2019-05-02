@@ -94,16 +94,18 @@
                name:
                        - python3-pip
                        - python3-setuptools
+     - name: Update cache again
+       apt: update_cache=yes
      - name: Install PIPs
        pip:
                name:
                        - docker
                        - docker-compose
+     - name: Add Docker to the sudo group
+       shell: usermod -aG docker $USER
      - name: Clone the project from GitHub
        git: repo=https://github.com/johnhowardkh/lempcompose-wordpress dest=/home/ubuntu/lempcompose
-     - name: Run the project
-       docker_service:
+     - docker_service:
                project_src: /home/ubuntu/lempcompose
                state: present
-               register: output
-
+       register: output
